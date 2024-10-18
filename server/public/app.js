@@ -1,23 +1,34 @@
 const socket = io("ws://localhost:8000");
 
+
+const activity = document.getElementById("activity");
+const messageInput = document.getElementById("message");
+
+console.log(activity)
+
+function updateActivity(msg) {
+    activity.textContent = msg;
+}
+
+messageInput.addEventListener('keypress', (event) => {
+    console.log("typing....")
+    socket.emit("activity", socket.id.substring(0, 3));
+})
+
+socket.on("activity", (name) => {
+    activity.textContent = `${name} is typing...`;
+})
+
 function sendMessage(event) {
     event.preventDefault();
 
     console.log("sending message.......")
 
     const handle = document.getElementById("handle");
-    const message = document.getElementById("message");
-
-    socket.emit("message", message.value);
-    /*socket.emit({
-        handle: handle.value,
-        message: message.value
-    });*/
-
-    //handle.value = "";
-    //message.value = "";
-
-    message.focus();
+    
+    socket.emit("message", messageInput.value);
+    
+    messageInput.focus();
 }
 
 document.getElementById("send").addEventListener("click", (event) => sendMessage(event));
@@ -28,16 +39,6 @@ document.getElementById("message").addEventListener("keypress", function (event)
         sendMessage(event);
     }
 });
-
-//blob reader
-const reader = new FileReader();
-//blob messages reader
-reader.onload = function(e) {
-  console.log(e.target.result);  
-  const li = document.createElement("li");
-  li.textContent = e.target.result;
-  document.querySelector("ul").appendChild(li);
-};
 
 const getBtn = () => {
     const btn = document.getElementById("send");
